@@ -68,6 +68,15 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now agente-local >/dev/null 2>&1
 sudo systemctl restart agente-local
 
+# Firewall ligado (ufw)? Libera a porta so pra rede de casa
+if command -v ufw >/dev/null && sudo ufw status 2>/dev/null | grep -q "Status: active"; then
+  REDE_LAN="$(ip -o -f inet addr show | awk '$2!="lo" && $2!~/^tailscale/ {print $4; exit}')"
+  if [ -n "$REDE_LAN" ]; then
+    REDE_LAN="$(python3 -c "import ipaddress,sys; print(ipaddress.ip_interface(sys.argv[1]).network)" "$REDE_LAN")"
+    sudo ufw allow from "$REDE_LAN" to any port "$PORTA" proto tcp >/dev/null
+  fi
+fi
+
 verde "4/5  Instalando o Tailscale (acesso de qualquer lugar, sem abrir porta)..."
 if ! command -v tailscale >/dev/null; then
   curl -fsSL https://tailscale.com/install.sh | sh
