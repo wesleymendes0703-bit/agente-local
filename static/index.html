@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1447d6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Agente Local</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icones/icone.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icones/icone-192.png">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- primeiro acesso / login -->
+<div id="tela-acesso" class="tela-cheia oculto">
+  <div class="cartao">
+    <div class="avatar">✦</div>
+    <div id="form-primeiro" class="oculto">
+      <h2>Bem-vindo! 👋</h2>
+      <p class="ajuda">Primeira vez aqui. Vamos dar um nome ao seu agente e criar a senha de entrada.</p>
+      <label for="pa-nome">Nome do agente</label>
+      <input type="text" id="pa-nome" placeholder="Levi" maxlength="40">
+      <label for="pa-dono">Seu nome</label>
+      <input type="text" id="pa-dono" placeholder="Wesley" maxlength="60">
+      <label for="pa-senha">Crie uma senha (6 ou mais letras/numeros)</label>
+      <input type="password" id="pa-senha" autocomplete="new-password">
+      <label for="pa-senha2">Repita a senha</label>
+      <input type="password" id="pa-senha2" autocomplete="new-password">
+      <button class="btn" id="pa-ok">Comecar</button>
+    </div>
+    <div id="form-login" class="oculto">
+      <h2 id="login-titulo">Oi de novo!</h2>
+      <p class="ajuda">Digite sua senha pra entrar.</p>
+      <input type="password" id="lg-senha" autocomplete="current-password" placeholder="Senha">
+      <button class="btn" id="lg-ok">Entrar</button>
+    </div>
+    <div class="erro" id="acesso-erro"></div>
+  </div>
+</div>
+
+<div id="app" class="oculto">
+  <header class="topo">
+    <button class="btn-icone" id="btn-gaveta" aria-label="Conversas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div class="avatar" id="topo-avatar">L</div>
+    <h1 id="topo-titulo">Agente</h1>
+    <button class="btn-icone" id="btn-nova" aria-label="Nova conversa">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="tela ativa" id="tela-chat">
+      <div id="mensagens"></div>
+      <div class="compositor">
+        <div id="previa" class="previa-img oculto"><img alt="imagem anexada"><button id="tirar-img" aria-label="Tirar imagem">✕</button></div>
+        <div class="linha-envio">
+          <button class="btn-redondo" id="btn-anexo" aria-label="Anexar imagem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          </button>
+          <input type="file" id="arq-img" accept="image/*" class="oculto">
+          <textarea id="caixa" rows="1" placeholder="Escreva aqui..." enterkeyhint="send"></textarea>
+          <button class="btn-redondo" id="btn-mic" aria-label="Gravar audio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          </button>
+          <button class="btn-redondo principal" id="btn-enviar" aria-label="Enviar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="tela" id="tela-lembretes">
+      <h2 class="titulo-tela">⏰ Lembretes</h2>
+      <div class="cartao">
+        <h2>Novo lembrete</h2>
+        <p class="ajuda">Dica: voce tambem pode pedir no chat, tipo "me lembra amanha as 9h de ligar pro banco".</p>
+        <label for="lb-texto">O que lembrar</label>
+        <input type="text" id="lb-texto" placeholder="Ligar pro banco">
+        <label for="lb-quando">Quando</label>
+        <input type="datetime-local" id="lb-quando">
+        <label for="lb-repetir">Repetir</label>
+        <select id="lb-repetir"><option value="nao">Nao repetir</option><option value="diario">Todo dia</option><option value="semanal">Toda semana</option></select>
+        <label><input type="checkbox" id="lb-ia"> A IA faz isso na hora e me manda o resultado</label>
+        <div class="fila"><button class="btn" id="lb-criar">Criar lembrete</button></div>
+      </div>
+      <div class="cartao"><h2>Marcados</h2><div id="lista-lembretes"></div></div>
+      <div class="cartao">
+        <h2>Avisos no celular</h2>
+        <p class="ajuda">Deixe o app mandar aviso quando chegar a hora (funciona com o app aberto ou em segundo plano).</p>
+        <button class="btn claro" id="btn-permissao">Ligar avisos</button>
+        <span class="status" id="permissao-status"></span>
+      </div>
+    </section>
+
+    <section class="tela" id="tela-cerebro">
+      <h2 class="titulo-tela">🧠 Cerebro</h2>
+      <div class="cartao">
+        <h2>Combo de IAs</h2>
+        <p class="ajuda">O agente tenta a 1a. Se a cota gratis acabar, passa pra 2a sozinho, e assim por diante. Use as setas pra mudar a ordem.</p>
+        <div id="lista-combo"></div>
+        <div class="fila">
+          <button class="btn claro" id="cb-despausar">Tentar todas de novo</button>
+          <button class="btn perigo" id="cb-padrao">Voltar ao padrao</button>
+        </div>
+      </div>
+      <div class="cartao">
+        <h2>Adicionar modelo</h2>
+        <label for="cb-prov">Provedor</label>
+        <select id="cb-prov"></select>
+        <label for="cb-modelo">Modelo</label>
+        <input type="text" id="cb-modelo" list="cb-lista" placeholder="toque em Buscar modelos">
+        <datalist id="cb-lista"></datalist>
+        <label><input type="checkbox" id="cb-visao"> Enxerga imagens</label>
+        <label><input type="checkbox" id="cb-tools" checked> Usa ferramentas direto (desmarque se der erro)</label>
+        <div class="fila">
+          <button class="btn claro" id="cb-buscar">Buscar modelos</button>
+          <button class="btn" id="cb-add">Adicionar ao combo</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="tela" id="tela-memoria">
+      <h2 class="titulo-tela">📒 Memoria</h2>
+      <div class="cartao">
+        <h2>Quem o agente e</h2>
+        <p class="ajuda">Nome, jeito de falar, regras. Ele le isso em toda conversa.</p>
+        <textarea class="campo" id="mm-persona"></textarea>
+        <div class="fila"><button class="btn" id="mm-salvar-persona">Salvar</button><span class="status" id="mm-st1"></span></div>
+      </div>
+      <div class="cartao">
+        <h2>O que ele sabe sobre voce</h2>
+        <p class="ajuda">Fatos que ele anotou (ou que voce escreveu). Pode apagar ou corrigir.</p>
+        <textarea class="campo" id="mm-memoria"></textarea>
+        <div class="fila"><button class="btn" id="mm-salvar-memoria">Salvar</button><span class="status" id="mm-st2"></span></div>
+      </div>
+      <div class="cartao">
+        <h2>Diario</h2>
+        <p class="ajuda">Um resumo de cada dia de conversa.</p>
+        <select id="mm-dias"></select>
+        <pre id="mm-diario" style="white-space:pre-wrap;font-size:14px"></pre>
+      </div>
+    </section>
+
+    <section class="tela" id="tela-config">
+      <h2 class="titulo-tela">⚙️ Configuracao</h2>
+      <div class="cartao">
+        <h2>Chaves das IAs (todas gratis)</h2>
+        <p class="ajuda">Cole a chave e toque em Salvar. Ela fica guardada so neste computador. Basta 1 pra funcionar; com mais, o combo tem reserva.</p>
+        <div id="lista-chaves"></div>
+      </div>
+      <div class="cartao">
+        <h2>Aparencia</h2>
+        <div class="fila">
+          <button class="btn claro" data-tema="auto">Automatico</button>
+          <button class="btn claro" data-tema="claro">Claro</button>
+          <button class="btn claro" data-tema="escuro">Escuro</button>
+        </div>
+      </div>
+      <div class="cartao">
+        <h2>Trocar senha</h2>
+        <label for="sn-atual">Senha atual</label><input type="password" id="sn-atual" autocomplete="current-password">
+        <label for="sn-nova">Senha nova</label><input type="password" id="sn-nova" autocomplete="new-password">
+        <div class="fila"><button class="btn" id="sn-ok">Trocar senha</button><span class="status" id="sn-st"></span></div>
+      </div>
+      <div class="cartao">
+        <div class="fila" style="margin:0"><button class="btn perigo" id="btn-sair">Sair deste aparelho</button></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="abas">
+    <button data-tela="chat" class="ativa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>Chat</button>
+    <button data-tela="lembretes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M19 3l3 3"/></svg>Lembretes</button>
+    <button data-tela="cerebro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 6 1V5a2 2 0 0 0-3-1zM15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-6 1"/></svg>Cerebro</button>
+    <button data-tela="memoria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5zM9 9h6M9 13h6M9 17h4"/></svg>Memoria</button>
+    <button data-tela="config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Ajustes</button>
+  </nav>
+</div>
+
+<div id="gaveta" class="oculto">
+  <div class="fundo-escuro"></div>
+  <div class="painel">
+    <h2 style="margin:0 0 10px;font-size:18px">Conversas</h2>
+    <button class="btn" id="gv-nova" style="width:100%;margin-bottom:10px">+ Nova conversa</button>
+    <div id="lista-conversas"></div>
+  </div>
+</div>
+
+<div id="aviso" class="aviso-topo oculto"></div>
+<script src="/app.js"></script>
+</body>
+</html>
