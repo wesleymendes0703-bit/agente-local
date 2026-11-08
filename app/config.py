@@ -19,6 +19,10 @@ CHAVES = {
     "CEREBRAS_API_KEY": "Cerebras",
     "MISTRAL_API_KEY": "Mistral",
 }
+# Outras chaves que a tela grava (nao sao de IA).
+CHAVES_EXTRAS = {
+    "CEREBRO_GITHUB_TOKEN": "Token do GitHub (segundo cerebro, so leitura)",
+}
 
 DADOS.mkdir(parents=True, exist_ok=True)
 (DADOS / "diario").mkdir(exist_ok=True)
@@ -48,7 +52,7 @@ def chave(nome: str) -> str:
 
 
 def gravar_chave(nome: str, valor: str):
-    if nome not in CHAVES:
+    if nome not in CHAVES and nome not in CHAVES_EXTRAS:
         raise ValueError("chave desconhecida")
     valor = valor.strip().replace("\n", "").replace("\r", "")
     atuais = _ler_env()

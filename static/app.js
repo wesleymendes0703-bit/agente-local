@@ -447,6 +447,7 @@ $("#mm-salvar-memoria").onclick = () => salvarMem("memoria", "#mm-st2");
 
 // ---------- configuracao ----------
 async function carregarConfig() {
+  carregarCerebroNotas().catch(() => {});
   const d = await api("/api/config");
   const box = $("#lista-chaves");
   box.innerHTML = "";
@@ -483,6 +484,44 @@ async function carregarConfig() {
     box.appendChild(div);
   });
 }
+// ---------- segundo cerebro ----------
+function mostrarCerebro(d) {
+  $("#cc-token-chip").innerHTML = d.tem_token ? '<span class="chip">guardado ✓</span>' : '<span class="chip cinza">vazio</span>';
+  $("#cc-repo").value = d.repo || "";
+  $("#cc-excluidos").value = (d.excluidos || []).join("\n");
+  const s = d.sync, st = $("#cc-status");
+  if (!s) { st.textContent = "Ainda nao sincronizado."; st.className = "status"; }
+  else {
+    const q = new Date(s.quando * 1000).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+    st.textContent = `${s.ok ? "✓" : "✕"} Ultima sincronizacao: ${q} · ${s.msg}`;
+    st.className = `status ${s.ok ? "bom" : "ruim"}`;
+  }
+  $("#cc-pastas").textContent = d.total ? `${d.total} notas. Pastas: ${d.pastas.join(" ")}` : "";
+}
+async function carregarCerebroNotas() { mostrarCerebro(await api("/api/conhecimento")); }
+$("#cc-salvar-token").onclick = async () => {
+  const v = $("#cc-token").value.trim();
+  if (!v) return avisar("Cole o token primeiro.");
+  await api("/api/config/chave", { method: "PUT", corpo: { nome: "CEREBRO_GITHUB_TOKEN", valor: v } });
+  $("#cc-token").value = "";
+  avisar("Token guardado ✓ Agora toque em Sincronizar.");
+  carregarCerebroNotas();
+};
+$("#cc-salvar").onclick = async () => {
+  try {
+    const excluidos = $("#cc-excluidos").value.split("\n").map((x) => x.trim()).filter(Boolean);
+    mostrarCerebro(await api("/api/conhecimento", { method: "PUT", corpo: { repo: $("#cc-repo").value, excluidos } }));
+    avisar("Salvo ✓");
+  } catch (e) { avisar(e.message); }
+};
+$("#cc-sync").onclick = async () => {
+  const b = $("#cc-sync");
+  b.disabled = true; b.textContent = "Sincronizando...";
+  try { const r = await api("/api/conhecimento/sincronizar", { method: "POST" }); mostrarCerebro(r); avisar(r.ok ? "✓ " + r.msg : "✕ " + r.msg, 6000); }
+  catch (e) { avisar(e.message); }
+  finally { b.disabled = false; b.textContent = "Sincronizar agora"; }
+};
+
 $("#sn-ok").onclick = async () => {
   const st = $("#sn-st");
   try {

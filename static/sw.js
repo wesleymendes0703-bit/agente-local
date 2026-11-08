@@ -1,5 +1,5 @@
 // Guarda a casca do app pra abrir rapido. A API nunca vai pro cache.
-const CACHE = "agente-v1";
+const CACHE = "agente-v2";
 const CASCA = ["/", "/style.css", "/app.js", "/manifest.webmanifest", "/icones/icone.svg", "/icones/icone-192.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CASCA))); self.skipWaiting(); });
 self.addEventListener("activate", (e) => {

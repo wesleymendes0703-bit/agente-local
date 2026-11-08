@@ -13,6 +13,7 @@ Um assistente pessoal **seu**, que roda num computador da sua casa (pode ser um 
 <img src="docs/2-cerebro.png" width="200" alt="Tela Cerebro com o combo de IAs">
 <img src="docs/3-configuracao.png" width="200" alt="Tela de configuracao das chaves">
 <img src="docs/4-memoria-escuro.png" width="200" alt="Tela de memoria no tema escuro">
+<img src="docs/5-segundo-cerebro.png" width="200" alt="Ajustes do segundo cerebro">
 </p>
 
 > A IA nao roda no seu computador (ele so conversa com elas pela internet). Por isso serve ate maquina antiga: o agente usa uns 80 MB de memoria.
@@ -74,6 +75,22 @@ Fale com ele como num WhatsApp. Exemplos:
 - "Pesquisa o que e o fenomeno El Nino e me explica facil"
 - mande uma foto e pergunte o que tem nela.
 
+### 6. Ligar o segundo cerebro (opcional)
+
+Se voce guarda suas notas num repositorio do GitHub (o "segundo cerebro"), o agente pode ler. Ele so le, nunca muda nada.
+
+**Criar o token (so leitura):**
+1. Abra https://github.com/settings/personal-access-tokens e toque em **Generate new token**.
+2. De um nome (ex.: "agente local") e escolha uma validade.
+3. Em **Repository access**, marque **Only select repositories** e escolha **segundo-cerebro**.
+4. Em **Permissions** > **Repository permissions** > **Contents**, escolha **Read-only**. Toque em **Generate token** e copie.
+
+**No app:** Ajustes > **Segundo cerebro** > cole o token > **Salvar token** > **Sincronizar agora**. Depois ele atualiza sozinho a cada 1 hora.
+
+**Notas privadas:** no campo "Privado" ficam as pastas e arquivos que o agente **nunca** le (ja vem com `financas/` e `pessoal/saude.md`). Eles nem sao baixados pro computador. Escreva um por linha; pasta termina com `/`. Por que isso importa: as IAs gratis podem usar as conversas pra treinar, entao o que e muito pessoal fica de fora.
+
+Depois e so perguntar: "quais sao minhas metas?", "o que tem de pendente?", "o que eu decidi sobre o canal?". Ele busca nas notas e diz de qual nota tirou.
+
 ---
 
 ## As telas
@@ -84,7 +101,7 @@ Fale com ele como num WhatsApp. Exemplos:
 | ⏰ **Lembretes** | Ver, criar e apagar lembretes. Ligue os **avisos** pro celular apitar na hora. |
 | 🧠 **Cerebro** | O combo de IAs: mude a ordem com as setas, pause ou tire uma IA, adicione modelos novos. |
 | 📒 **Memoria** | Quem o agente e (nome, jeito de falar) e o que ele sabe sobre voce. Pode editar tudo. Tem o diario de cada dia. |
-| ⚙️ **Ajustes** | Chaves das IAs, tema claro/escuro, trocar senha, sair. |
+| ⚙️ **Ajustes** | Chaves das IAs, segundo cerebro, tema claro/escuro, trocar senha, sair. |
 
 ---
 
@@ -104,7 +121,7 @@ No computador do agente, rode: `rm ~/agente-local/dados/agente.db` e abra o app 
 **Desinstalar:** `bash ~/agente-local/desinstalar.sh` (ele pergunta antes de apagar seus dados).
 
 **O agente pode mexer no meu computador?**
-Nao. Ele nao tem acesso ao terminal. So consegue: anotar na memoria, criar lembretes, pesquisar na internet, ler paginas publicas e ver a hora.
+Nao. Ele nao tem acesso ao terminal. So consegue: anotar na memoria, criar lembretes, pesquisar na internet, ler paginas publicas, ler as notas do segundo cerebro (menos as privadas) e ver a hora.
 
 ---
 

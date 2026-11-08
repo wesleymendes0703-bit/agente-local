@@ -153,6 +153,26 @@
         <p class="ajuda">Cole a chave e toque em Salvar. Ela fica guardada so neste computador. Basta 1 pra funcionar; com mais, o combo tem reserva.</p>
         <div id="lista-chaves"></div>
       </div>
+      <div class="cartao" id="cartao-cerebro">
+        <h2>📚 Segundo cerebro</h2>
+        <p class="ajuda">O agente le suas notas do GitHub (so leitura, nunca muda nada) e atualiza sozinho a cada 1 hora.</p>
+        <label for="cc-token">Token do GitHub (so leitura) <span id="cc-token-chip"></span></label>
+        <input type="password" id="cc-token" autocomplete="off" placeholder="cole o token aqui">
+        <div class="fila" style="margin-top:8px">
+          <button class="btn" id="cc-salvar-token">Salvar token</button>
+          <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" style="font-size:14px">Criar token</a>
+        </div>
+        <label for="cc-repo">Repositorio</label>
+        <input type="text" id="cc-repo" placeholder="wesleymendes0703-bit/segundo-cerebro">
+        <label for="cc-excluidos">Privado: o agente NUNCA le (um por linha; pasta termina com /)</label>
+        <textarea class="campo" id="cc-excluidos" style="min-height:90px"></textarea>
+        <div class="fila">
+          <button class="btn claro" id="cc-salvar">Salvar</button>
+          <button class="btn" id="cc-sync">Sincronizar agora</button>
+        </div>
+        <div class="status" id="cc-status" style="margin-top:10px"></div>
+        <p class="ajuda" id="cc-pastas" style="margin-top:6px"></p>
+      </div>
       <div class="cartao">
         <h2>Aparencia</h2>
         <div class="fila">

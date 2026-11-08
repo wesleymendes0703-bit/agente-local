@@ -2,14 +2,25 @@
 import json
 import time
 
-from . import cerebro, db, ferramentas, memoria
+from . import cerebro, conhecimento, db, ferramentas, memoria
 
 MAX_VOLTAS = 5
 HISTORICO = 20
 
 
+def _cerebro():
+    mapa = conhecimento.resumo_mapa()
+    if not mapa:
+        return ""
+    return ("\n\n## Segundo cerebro do dono (notas)\n"
+            "Para perguntas sobre a vida, rotina, projetos, aulas, clientes, metas, pendencias, pessoas ou "
+            "decisoes do dono, consulte com buscar_cerebro e ler_nota antes de responder, e cite a nota "
+            "(ex.: 'segundo metas.md'). Algumas notas sao privadas e bloqueadas: nunca tente contornar.\n"
+            "Mapa resumido:\n" + mapa)
+
+
 def _sistema():
-    return (memoria.contexto()
+    return (memoria.contexto() + _cerebro()
             + f"\n\n## Agora\n{ferramentas.data_hora()}\n\n"
             "## Regras\n"
             "- Use a ferramenta anotar_memoria quando o dono contar algo que vale lembrar.\n"

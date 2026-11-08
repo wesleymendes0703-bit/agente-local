@@ -14,8 +14,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import agente, cerebro, db, ferramentas, memoria
-from .config import CHAVES, HOST, PORTA, STATIC, chave, gravar_chave
+from . import agente, cerebro, conhecimento, db, ferramentas, memoria
+from .config import CHAVES, CHAVES_EXTRAS, HOST, PORTA, STATIC, chave, gravar_chave
 
 COOKIE = "agente_sessao"
 SESSAO_DIAS = 30
@@ -60,6 +60,7 @@ def _limite_login(ip):
 
 # ---------- agendador de lembretes ----------
 
+_sync_lock = asyncio.Lock()
 _tarefas: set = set()  # segura as tarefas vivas ate terminarem
 
 
@@ -80,6 +81,15 @@ async def _agendador():
                     db.notificar("Lembrete", r["texto"])
         except Exception as ex:  # nunca deixa o agendador morrer
             print("agendador:", ex, flush=True)
+        try:
+            s = db.ajuste("cerebro_sync") or {}
+            ligado = chave(conhecimento.ENV_TOKEN) or s.get("ok")
+            if ligado and conhecimento.precisa_sincronizar() and not _sync_lock.locked():
+                async with _sync_lock:
+                    ok, msg = await asyncio.to_thread(conhecimento.sincronizar)
+                    print("cerebro:", msg, flush=True)
+        except Exception as ex:
+            print("cerebro:", type(ex).__name__, flush=True)
         await asyncio.sleep(15)
 
 
@@ -398,12 +408,44 @@ def ver_config():
 
 @app.put("/api/config/chave", dependencies=[Depends(logado)])
 def salvar_chave(d: Chave):
-    if d.nome not in CHAVES:
+    if d.nome not in CHAVES and d.nome not in CHAVES_EXTRAS:
         raise HTTPException(400, "chave desconhecida")
     gravar_chave(d.nome, d.valor)
-    prov = next(k for k, v in cerebro.PROVEDORES.items() if v["env"] == d.nome)
-    cerebro._pausas.pop(prov, None)
+    prov = next((k for k, v in cerebro.PROVEDORES.items() if v["env"] == d.nome), None)
+    if prov:
+        cerebro._pausas.pop(prov, None)
     return {"ok": True}
+
+
+# ---------- segundo cerebro ----------
+
+class Conhecimento(BaseModel):
+    repo: str | None = None
+    excluidos: list[str] | None = None
+
+
+@app.get("/api/conhecimento", dependencies=[Depends(logado)])
+def ver_conhecimento():
+    return conhecimento.estado()
+
+
+@app.put("/api/conhecimento", dependencies=[Depends(logado)])
+async def salvar_conhecimento(d: Conhecimento):
+    async with _sync_lock:
+        try:
+            await asyncio.to_thread(conhecimento.salvar, d.repo, d.excluidos)
+        except ValueError as ex:
+            raise HTTPException(400, str(ex))
+    return conhecimento.estado()
+
+
+@app.post("/api/conhecimento/sincronizar", dependencies=[Depends(logado)])
+async def sincronizar_conhecimento():
+    if _sync_lock.locked():
+        raise HTTPException(409, "ja estou sincronizando, espere um pouco")
+    async with _sync_lock:
+        ok, msg = await asyncio.to_thread(conhecimento.sincronizar)
+    return {"ok": ok, "msg": msg, **conhecimento.estado()}
 
 
 @app.post("/api/config/testar/{prov}", dependencies=[Depends(logado)])

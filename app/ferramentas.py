@@ -11,7 +11,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 import httpx
 
-from . import db, memoria
+from . import conhecimento, db, memoria
 from .config import FUSO
 
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"
@@ -41,6 +41,11 @@ DEFINICOES = [
     _f("ler_pagina", "Abre um link e devolve o texto da pagina.",
        {"url": {"type": "string"}}, ["url"]),
     _f("data_hora", "Devolve a data e hora atuais.", {}),
+    _f("buscar_cerebro", "Busca por palavras no segundo cerebro do dono (notas pessoais: metas, pendencias, "
+       "projetos, aulas, clientes, ideias, pessoas, decisoes). Devolve trechos com o caminho da nota.",
+       {"termo": {"type": "string", "description": "palavras-chave, ex.: 'metas youtube'"}}, ["termo"]),
+    _f("ler_nota", "Le uma nota inteira do segundo cerebro pelo caminho (ex.: 'metas.md', 'aulas/turmas.md').",
+       {"caminho": {"type": "string"}}, ["caminho"]),
 ]
 
 
@@ -186,6 +191,10 @@ async def executar(nome, args):
             return await ler_pagina(str(args.get("url", "")))
         if nome == "data_hora":
             return data_hora()
+        if nome == "buscar_cerebro":
+            return conhecimento.buscar(str(args.get("termo", "")))
+        if nome == "ler_nota":
+            return conhecimento.ler(str(args.get("caminho", "")))
         return f"ferramenta desconhecida: {nome}"
     except Exception as ex:  # a IA recebe o erro e explica pro dono
         return f"erro na ferramenta {nome}: {type(ex).__name__}: {str(ex)[:200]}"
@@ -195,8 +204,9 @@ def resumo(nome, args):
     """Texto curtinho pra mostrar no chat o que a IA usou."""
     rot = {"anotar_memoria": "Anotei na memoria", "criar_lembrete": "Criei lembrete",
            "listar_lembretes": "Olhei os lembretes", "apagar_lembrete": "Apaguei lembrete",
-           "buscar_web": "Pesquisei na web", "ler_pagina": "Li a pagina", "data_hora": "Vi a hora"}
-    det = args.get("fato") or args.get("consulta") or args.get("url") or args.get("texto") or ""
+           "buscar_web": "Pesquisei na web", "ler_pagina": "Li a pagina", "data_hora": "Vi a hora",
+           "buscar_cerebro": "Busquei no segundo cerebro", "ler_nota": "Li a nota"}
+    det = args.get("fato") or args.get("consulta") or args.get("termo") or args.get("caminho") or args.get("url") or args.get("texto") or ""
     return f'{rot.get(nome, nome)}{": " + str(det)[:80] if det else ""}'
 
 
